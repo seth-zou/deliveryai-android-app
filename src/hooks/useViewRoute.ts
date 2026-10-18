@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 import type { ViewName } from '@/types'
 
-// 主流程视图与 URL hash 的一一映射：home → welcome → menu → order → checkout。
+// 主流程视图与 URL hash 的一一映射：home → welcome → menu → order → checkout；snake 为独立小游戏入口。
 // 用 hash 路由（而非 History 路由）以兼容 Vite base './' 与 GitHub Pages 子路径部署：
 // hash 不会发往服务器，静态托管只需返回 index.html，dist 直接 file:// 打开也能路由。
-const VIEWS: ViewName[] = ['home', 'welcome', 'menu', 'order', 'checkout']
+const VIEWS: ViewName[] = ['home', 'welcome', 'menu', 'order', 'checkout', 'snake']
 
 export const viewToHash = (view: ViewName) => `#/${view}`
 

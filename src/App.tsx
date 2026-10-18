@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useState } from 'react'
 import i18next from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { ClipboardList, ConciergeBell, LayoutDashboard, Menu as MenuIcon, ShoppingBasket } from 'lucide-react'
+import { ClipboardList, ConciergeBell, Gamepad2, LayoutDashboard, Menu as MenuIcon, ShoppingBasket } from 'lucide-react'
 import { HomeView } from '@/components/HomeView'
 import { WelcomeView } from '@/components/WelcomeView'
 import { CartPanel } from '@/components/CartPanel'
@@ -9,6 +9,7 @@ import { CheckoutView } from '@/components/CheckoutView'
 import { DemoConsole } from '@/components/DemoConsole'
 import { MenuView } from '@/components/MenuView'
 import { OrderView } from '@/components/OrderView'
+import { SnakeView } from '@/components/SnakeView'
 import { ServiceSheet } from '@/components/ServiceSheet'
 import { TopBar } from '@/components/TopBar'
 import { Button } from '@/components/ui/button'
@@ -37,6 +38,10 @@ function createInitialState(): AppState {
     }
   }
 
+  if (requestedView === 'snake') {
+    return { ...initialState, view: 'snake' }
+  }
+
   // 深链接：直接以 #/welcome 等地址打开时，先绑定示例桌台再进入对应视图；
   // home 无需桌台，其余流程视图（welcome/menu/order/checkout）需要桌台上下文。
   if (requestedView && requestedView !== 'home') {
@@ -57,7 +62,7 @@ export default function App() {
   const waitingServices = state.services.filter((service) => service.status === 'waiting').length
 
   // 视图 ↔ URL hash 双向同步；未绑定桌台时只有 home 可达，其余地址回落到 home
-  const canView = useCallback((view: ViewName) => view === 'home' || !!state.table, [state.table])
+  const canView = useCallback((view: ViewName) => view === 'home' || view === 'snake' || !!state.table, [state.table])
   const navigate = useCallback((view: ViewName) => dispatch({ type: 'SET_VIEW', view }), [])
   useViewRoute(state.view, { onNavigate: navigate, canView })
 
@@ -86,8 +91,12 @@ export default function App() {
     dispatch({ type: 'SET_MESSAGE', message: elderly ? '已切换为常规模式' : '已切换为老人模式' })
   }
 
+  if (state.view === 'snake') {
+    return <SnakeView onBack={() => dispatch({ type: 'SET_VIEW', view: state.table ? 'menu' : 'home' })} />
+  }
+
   if (state.view === 'home' || !state.table) {
-    return <HomeView onBind={(table) => dispatch({ type: 'BIND_TABLE', table })} />
+    return <HomeView onBind={(table) => dispatch({ type: 'BIND_TABLE', table })} onPlaySnake={() => dispatch({ type: 'SET_VIEW', view: 'snake' })} />
   }
 
   if (state.view === 'welcome') {
@@ -169,10 +178,11 @@ export default function App() {
         )}
       </div>
 
-      <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-30 grid grid-cols-4 border-t border-charcoal-900/5 bg-white/95 px-2 pt-2 backdrop-blur lg:hidden">
+      <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-30 grid grid-cols-5 border-t border-charcoal-900/5 bg-white/95 px-2 pt-2 backdrop-blur lg:hidden">
         <MobileNav active={state.view === 'menu'} icon={MenuIcon} label={t('common.nav_menu')} onClick={() => changeView('menu')} />
         <MobileNav active={state.view === 'order'} icon={ClipboardList} label={t('common.nav_order')} onClick={() => changeView('order')} />
         <MobileNav active={serviceOpen} icon={ConciergeBell} label={t('common.nav_service')} badge={waitingServices} onClick={() => setServiceOpen(true)} />
+        <MobileNav active={false} icon={Gamepad2} label={t('common.nav_snake')} onClick={() => changeView('snake')} />
         <MobileNav active={consoleOpen} icon={LayoutDashboard} label={t('common.nav_demo')} onClick={() => setConsoleOpen(true)} />
       </nav>
 

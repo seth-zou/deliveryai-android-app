@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Check, ChevronRight, MapPin, QrCode, Sparkles, Users } from 'lucide-react'
+import { Check, ChevronRight, Gamepad2, MapPin, QrCode, Sparkles, Users } from 'lucide-react'
 import hotpot from '@/assets/hotpot.jpg'
 import { Button } from '@/components/ui/button'
 
@@ -10,9 +10,12 @@ const tableOptions = [
   { code: 'D03', areaKey: 'bind.area.window', seats: 6 },
 ]
 
-interface HomeViewProps { onBind: (table: string) => void }
+interface HomeViewProps {
+  onBind: (table: string) => void
+  onPlaySnake: () => void
+}
 
-export function HomeView({ onBind }: HomeViewProps) {
+export function HomeView({ onBind, onPlaySnake }: HomeViewProps) {
   const { t } = useTranslation()
   return (
     <main className="relative min-h-screen overflow-hidden bg-rice-100 paper-noise">
@@ -58,7 +61,10 @@ export function HomeView({ onBind }: HomeViewProps) {
               </button>
             ))}
           </div>
-          <Button onClick={() => onBind('A08')} className="mt-4 w-full"><MapPin size={17} />{t('bind.quick_enter')}</Button>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <Button onClick={() => onBind('A08')}><MapPin size={17} />{t('bind.quick_enter')}</Button>
+            <Button variant="outline" onClick={onPlaySnake}><Gamepad2 size={17} />{t('snake.home_entry')}</Button>
+          </div>
         </section>
       </div>
     </main>
